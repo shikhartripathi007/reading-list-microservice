@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  database:
+    image: postgres:15-alpine
+    container_name: reading_list_db
+    environment:
+      POSTGRES_DB: reading_list
+      POSTGRES_USER: bookkeeper
+      POSTGRES_PASSWORD: mybooks123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bookkeeper -d reading_list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Flask Reading Service
+  reading-service:
+    image: sandkri3424/reading-service:latest
+    container_name: reading_service_app
+    environment:
+      DATABASE_URL: postgresql://bookkeeper:mybooks123@database:5432/reading_list
+    ports:
+      - "5001:5001"
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:

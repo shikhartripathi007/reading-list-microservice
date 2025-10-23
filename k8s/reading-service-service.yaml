@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: reading-service
+  namespace: reading-list
+  labels:
+    app: reading-service
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 5001
+    nodePort: 30001
+    protocol: TCP
+  selector:
+    app: reading-service
